@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description"
+    content="SnapRead — RSVP speed reading app for EPUB, PDF, TXT, and Markdown files. Read faster on any device.">
+  <meta name="theme-color" content="#d4a855">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SnapRead">
+
+  <title>SnapRead — Speed Reader</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Libraries via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    // Configure pdf.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- ===== HEADER ===== -->
+    <header class="app-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="btn-icon" id="btn-back" style="display:none;" title="Back to library" aria-label="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12,19 5,12 12,5"></polyline>
+          </svg>
+        </button>
+        <a class="app-logo" id="app-logo">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="2" width="22" height="24" rx="3" stroke="currentColor" stroke-width="2" />
+            <line x1="8" y1="8" x2="20" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="8" y1="13" x2="17" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              opacity="0.5" />
+            <line x1="8" y1="17" x2="19" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              opacity="0.5" />
+            <circle cx="14" cy="13" r="5" fill="currentColor" opacity="0.15" />
+            <line x1="14" y1="10" x2="14" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          SnapRead
+        </a>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" id="btn-settings" title="Settings" aria-label="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ===== LIBRARY VIEW ===== -->
+    <main class="view active" id="view-library">
+      <div class="library-header">
+        <h1>Your Library</h1>
+        <button class="btn btn-primary" id="btn-add-file">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add File
+        </button>
+      </div>
+
+      <div class="library-grid" id="library-grid"></div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="library-empty" style="display:none;">
+        <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="12" y="8" width="56" height="64" rx="6" />
+          <line x1="24" y1="24" x2="56" y2="24" />
+          <line x1="24" y1="34" x2="48" y2="34" opacity="0.6" />
+          <line x1="24" y1="44" x2="52" y2="44" opacity="0.6" />
+          <line x1="24" y1="54" x2="44" y2="54" opacity="0.4" />
+        </svg>
+        <h2>No files yet</h2>
+        <p>Add an EPUB, PDF, TXT, or Markdown file to start speed reading.</p>
+        <button class="btn btn-primary" id="btn-add-file-empty">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Your First File
+        </button>
+      </div>
+    </main>
+
+    <!-- ===== READER VIEW ===== -->
+    <main class="view reader-view" id="view-reader">
+      <!-- Reader Header -->
+      <div class="reader-header">
+        <span class="reader-title" id="reader-book-title">—</span>
+        <div class="reader-modes">
+          <button class="mode-btn active" data-mode="rsvp">RSVP</button>
+          <button class="mode-btn" data-mode="normal">Read</button>
+        </div>
+      </div>
+
+      <!-- RSVP Container -->
+      <div class="rsvp-container" id="rsvp-container">
+        <div class="rsvp-display">
+          <!-- Focus guides with word -->
+          <div class="rsvp-focus-guides">
+            <div class="rsvp-word-container" style="font-size: var(--rsvp-font-size, 3rem);">
+              <div class="rsvp-word" id="rsvp-word">
+                <span class="rsvp-idle-message">Press play to start reading</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="rsvp-stats">
+            <div class="stat">
+              <span>Speed:</span>
+              <span class="stat-value" id="stat-wpm">300</span>
+              <span>WPM</span>
+            </div>
+            <div class="stat">
+              <span id="time-remaining">— left</span>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="rsvp-controls">
+            <button class="ctrl-sm" id="btn-rewind" title="Rewind (←)" aria-label="Rewind">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="11,19 2,12 11,5"></polygon>
+                <polygon points="22,19 13,12 22,5"></polygon>
+              </svg>
+            </button>
+            <button class="ctrl-play" id="btn-play" title="Play / Pause (Space)" aria-label="Play">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5,3 19,12 5,21"></polygon>
+              </svg>
+            </button>
+            <button class="ctrl-sm" id="btn-skip" title="Skip (→)" aria-label="Skip">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="13,19 22,12 13,5"></polygon>
+                <polygon points="2,19 11,12 2,5"></polygon>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Speed slider -->
+          <div class="speed-control">
+            <label>Speed</label>
+            <input type="range" id="speed-slider" min="100" max="1000" step="25" value="300">
+            <span class="speed-value" id="speed-value">300 WPM</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Normal Reader -->
+      <div class="normal-reader" id="normal-reader" style="display:none;"></div>
+
+      <!-- Progress Bar -->
+      <div class="reader-progress">
+        <div class="progress-track" id="progress-track">
+          <div class="progress-thumb" id="progress-thumb" style="width:0%"></div>
+        </div>
+        <div class="progress-info">
+          <span id="progress-percent">0%</span>
+          <span id="progress-words">0 / 0 words</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===== SETTINGS OVERLAY ===== -->
+    <div class="settings-overlay" id="settings-overlay"></div>
+    <aside class="settings-panel" id="settings-panel">
+      <div class="settings-header">
+        <h2>Settings</h2>
+        <button class="btn-icon" id="settings-close" aria-label="Close settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="settings-body">
+
+        <!-- Reading Speed -->
+        <div class="setting-group">
+          <h3>Reading Speed</h3>
+          <div class="setting-row">
+            <label>Words per minute</label>
+            <span class="setting-value" id="setting-speed-value">300 WPM</span>
+          </div>
+          <input type="range" id="setting-speed" min="100" max="1000" step="25" value="300"
+            style="width:100%; margin-top:8px; -webkit-appearance:none; appearance:none; height:4px; background:var(--border-medium); border-radius:9999px; outline:none;">
+        </div>
+
+        <!-- ORP Highlight -->
+        <div class="setting-group">
+          <h3>ORP Highlight Color</h3>
+          <div class="setting-row">
+            <label>Focus letter color</label>
+            <div class="color-picker-wrap">
+              <input type="color" id="setting-orp-color" value="#ff4444">
+            </div>
+          </div>
+        </div>
+
+        <!-- Font Size -->
+        <div class="setting-group">
+          <h3>Display Size</h3>
+          <div class="toggle-group" id="font-size-toggle">
+            <button data-value="small">S</button>
+            <button data-value="medium" class="active">M</button>
+            <button data-value="large">L</button>
+            <button data-value="xl">XL</button>
+          </div>
+        </div>
+
+        <!-- Chunk Size -->
+        <div class="setting-group">
+          <h3>Words at a Time</h3>
+          <div class="toggle-group" id="chunk-size-toggle">
+            <button data-value="1" class="active">1</button>
+            <button data-value="2">2</button>
+            <button data-value="3">3</button>
+          </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Reference -->
+        <div class="setting-group">
+          <h3>Keyboard Shortcuts</h3>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 2;">
+            <div><kbd
+                style="background:var(--bg-elevated); padding:2px 8px; border-radius:4px; font-family:var(--font-mono); font-size:0.8rem;">Space</kbd>
+              Play / Pause</div>
+            <div><kbd
+                style="background:var(--bg-elevated); padding:2px 8px; border-radius:4px; font-family:var(--font-mono); font-size:0.8rem;">←</kbd>
+              Rewind sentence</div>
+            <div><kbd
+                style="background:var(--bg-elevated); padding:2px 8px; border-radius:4px; font-family:var(--font-mono); font-size:0.8rem;">→</kbd>
+              Skip sentence</div>
+            <div><kbd
+                style="background:var(--bg-elevated); padding:2px 8px; border-radius:4px; font-family:var(--font-mono); font-size:0.8rem;">↑</kbd>
+              Speed up (+25 WPM)</div>
+            <div><kbd
+                style="background:var(--bg-elevated); padding:2px 8px; border-radius:4px; font-family:var(--font-mono); font-size:0.8rem;">↓</kbd>
+              Slow down (-25 WPM)</div>
+            <div><kbd
+                style="background:var(--bg-elevated); padding:2px 8px; border-radius:4px; font-family:var(--font-mono); font-size:0.8rem;">Esc</kbd>
+              Pause</div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Hidden file input -->
+    <input type="file" class="file-input-hidden" id="file-input" accept=".epub,.pdf,.txt,.text,.md,.markdown" multiple>
+
+  </div>
+
+  <!-- App Scripts (order matters: dependencies first) -->
+  <script src="js/db.js"></script>
+  <script src="js/file-parser.js"></script>
+  <script src="js/rsvp-engine.js"></script>
+  <script src="js/library.js"></script>
+  <script src="js/reader.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

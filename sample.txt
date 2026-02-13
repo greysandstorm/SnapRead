@@ -1,0 +1,19 @@
+The quick brown fox jumps over the lazy dog. This is a sample text file for testing the SnapRead speed reading application.
+
+Speed reading is a collection of reading methods which attempt to increase rates of reading without greatly reducing comprehension or retention. Methods include chunking and minimizing subvocalization. The many available speed reading training programs include books, videos, software, and seminars.
+
+Rapid Serial Visual Presentation, or RSVP, is a technique that displays text one word at a time at a fixed focal point. This eliminates the need for eye movements, allowing the brain to process words faster than in conventional reading. The technique was developed from cognitive science research that began in the 1970s.
+
+The key innovation of RSVP readers like Spritz is the Optimal Recognition Point, or ORP. Each word has a specific letter that the eye naturally fixates on for fastest recognition. By highlighting this letter and positioning it at a consistent location, the reader's eye doesn't need to move at all.
+
+Modern RSVP implementations include several features to improve the reading experience. Adjustable speed in words per minute allows users to find their comfort zone. Punctuation-aware pausing gives the brain extra time to process sentence boundaries. And chunk mode lets you display two or three words at once for a more natural reading rhythm.
+
+This paragraph tests some punctuation handling! Does the reader pause correctly at question marks? It should also pause at exclamations! And what about semicolons; they should get a shorter pause. Commas, of course, get their own timing too.
+
+Here is a longer passage to test sustained reading. The history of speed reading dates back to the early twentieth century, when the visual perception studies conducted by Emile Javal revealed that readers' eyes do not move smoothly along a line of text, but instead make short, rapid movements called saccades, interspersed with short stops called fixations. This discovery led researchers to explore ways to reduce the number of fixations per line, thereby increasing reading speed.
+
+In the 1950s, Evelyn Wood, an American educator, claimed to have developed a method that allowed her to read at a rate of several thousand words per minute. She founded Evelyn Wood Reading Dynamics, which became one of the most well-known speed reading courses in the United States. Her methods included techniques such as using a finger or pointer to guide the eye along the text, reading in patterns across the page rather than line by line, and practicing to reduce subvocalization.
+
+The advent of computers and digital text opened up new possibilities for speed reading technology. RSVP was first described in the psychological literature in the 1970s, initially as a research method for studying visual perception and attention. Researchers found that human beings could identify words presented for very brief durations, sometimes as short as fifty milliseconds per word, although comprehension at such speeds was limited.
+
+Thank you for testing SnapRead. Happy reading!
