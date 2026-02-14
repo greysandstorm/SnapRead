@@ -75,31 +75,36 @@ class FileParser {
         // Iterate through spine items to extract text
         for (let i = 0; i < spine.items.length; i++) {
             const item = spine.items[i];
-            const doc = await book.load(item.href);
+            try {
+                const doc = await book.load(item.href);
 
-            // doc is a Document object, extract text
-            let chapterText = '';
-            if (doc && doc.body) {
-                chapterText = this._extractTextFromNode(doc.body);
-            } else if (doc && doc.documentElement) {
-                chapterText = this._extractTextFromNode(doc.documentElement);
-            } else if (typeof doc === 'string') {
-                chapterText = this._stripHtml(doc);
+                // doc is a Document object, extract text
+                let chapterText = '';
+                if (doc && doc.body) {
+                    chapterText = this._extractTextFromNode(doc.body);
+                } else if (doc && doc.documentElement) {
+                    chapterText = this._extractTextFromNode(doc.documentElement);
+                } else if (typeof doc === 'string') {
+                    chapterText = this._stripHtml(doc);
+                }
+
+                chapterText = chapterText.trim();
+                if (chapterText.length === 0) continue;
+
+                const chapterWords = this._tokenize(chapterText);
+
+                chapters.push({
+                    title: item.label || `Chapter ${chapters.length + 1}`,
+                    startWordIndex: allWords.length,
+                    wordCount: chapterWords.length,
+                });
+
+                allWords = allWords.concat(chapterWords);
+                allText += chapterText + '\n\n';
+            } catch (err) {
+                console.warn(`Failed to load chapter ${item.href}:`, err);
+                // Continue to next chapter
             }
-
-            chapterText = chapterText.trim();
-            if (chapterText.length === 0) continue;
-
-            const chapterWords = this._tokenize(chapterText);
-
-            chapters.push({
-                title: item.label || `Chapter ${chapters.length + 1}`,
-                startWordIndex: allWords.length,
-                wordCount: chapterWords.length,
-            });
-
-            allWords = allWords.concat(chapterWords);
-            allText += chapterText + '\n\n';
         }
 
         book.destroy();
