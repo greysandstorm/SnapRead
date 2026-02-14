@@ -14,20 +14,37 @@ class FileParser {
      * @param {File} file - The file from the file input
      * @returns {Promise<Object>} Parsed document
      */
-    async parse(file) {
-        const ext = this._getExtension(file.name);
+    /**
+     * Parse a file or buffer and return a structured document object.
+     * @param {File|ArrayBuffer} input - Not output
+     * @param {string} [filename] - Required if input is ArrayBuffer
+     * @returns {Promise<Object>} Parsed document
+     */
+    async parse(input, filename) {
+        let buffer;
+        let name;
+
+        if (input instanceof Blob) {
+            buffer = await input.arrayBuffer();
+            name = input.name || filename;
+        } else {
+            buffer = input;
+            name = filename;
+        }
+
+        const ext = this._getExtension(name);
 
         switch (ext) {
             case '.epub':
-                return await this._parseEpub(file);
+                return await this._parseEpub(buffer, name);
             case '.pdf':
-                return await this._parsePdf(file);
+                return await this._parsePdf(buffer, name);
             case '.txt':
             case '.text':
-                return await this._parsePlainText(file);
+                return await this._parsePlainText(buffer, name);
             case '.md':
             case '.markdown':
-                return await this._parseMarkdown(file);
+                return await this._parseMarkdown(buffer, name);
             default:
                 throw new Error(`Unsupported file type: ${ext}`);
         }
@@ -37,16 +54,16 @@ class FileParser {
      * Get the file extension
      */
     _getExtension(filename) {
+        if (!filename) return '';
         const idx = filename.lastIndexOf('.');
         return idx >= 0 ? filename.substring(idx).toLowerCase() : '';
     }
 
     /**
-     * Parse EPUB using epub.js
+     * Parse EPUB
      */
-    async _parseEpub(file) {
-        const arrayBuffer = await file.arrayBuffer();
-        const book = ePub(arrayBuffer);
+    async _parseEpub(buffer, filename) {
+        const book = ePub(buffer);
         await book.ready;
 
         const metadata = book.packaging.metadata;
@@ -88,7 +105,7 @@ class FileParser {
         book.destroy();
 
         return {
-            title: metadata.title || file.name.replace(/\.epub$/i, ''),
+            title: metadata.title || filename.replace(/\.epub$/i, ''),
             author: metadata.creator || '',
             chapters,
             words: allWords,
@@ -99,11 +116,10 @@ class FileParser {
     }
 
     /**
-     * Parse PDF using pdf.js
+     * Parse PDF
      */
-    async _parsePdf(file) {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    async _parsePdf(buffer, filename) {
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
 
         let allText = '';
         let allWords = [];
@@ -133,7 +149,7 @@ class FileParser {
         }
 
         // Extract metadata
-        let title = file.name.replace(/\.pdf$/i, '');
+        let title = filename.replace(/\.pdf$/i, '');
         let author = '';
         try {
             const meta = await pdf.getMetadata();
@@ -155,15 +171,15 @@ class FileParser {
     }
 
     /**
-     * Parse plain text file
+     * Parse plain text
      */
-    async _parsePlainText(file) {
-        const text = await file.text();
+    async _parsePlainText(buffer, filename) {
+        const text = new TextDecoder().decode(buffer);
         const words = this._tokenize(text);
         const chapters = this._detectChapters(text, words);
 
         return {
-            title: file.name.replace(/\.(txt|text)$/i, ''),
+            title: filename.replace(/\.(txt|text)$/i, ''),
             author: '',
             chapters,
             words,
@@ -174,20 +190,20 @@ class FileParser {
     }
 
     /**
-     * Parse Markdown file (strip syntax for RSVP, keep raw for normal reading)
+     * Parse Markdown
      */
-    async _parseMarkdown(file) {
-        const rawText = await file.text();
+    async _parseMarkdown(buffer, filename) {
+        const rawText = new TextDecoder().decode(buffer);
         const strippedText = this._stripMarkdown(rawText);
         const words = this._tokenize(strippedText);
         const chapters = this._detectMarkdownHeadings(rawText, strippedText, words);
 
         return {
-            title: file.name.replace(/\.(md|markdown)$/i, ''),
+            title: filename.replace(/\.(md|markdown)$/i, ''),
             author: '',
             chapters,
             words,
-            fullText: rawText,  // Keep raw markdown for normal reading
+            fullText: rawText,
             fullTextStripped: strippedText,
             format: 'md',
             wordCount: words.length,

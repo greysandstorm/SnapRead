@@ -105,17 +105,27 @@ class Library {
         for (const file of files) {
             try {
                 // Show loading state
+                // Show loading state
+                app.showToast(`Reading ${file.name}...`, 'info');
+
+                // 1. Read the file into an ArrayBuffer once
+                // This prevents issues with double-reading streams on mobile/iOS
+                const arrayBuffer = await file.arrayBuffer();
+
+                if (arrayBuffer.byteLength === 0) {
+                    throw new Error('File is empty. If this is from iCloud, please ensure it is downloaded first.');
+                }
+
                 app.showToast(`Parsing ${file.name}...`, 'info');
 
-                // Parse the file to extract metadata and word count
-                const parsed = await fileParser.parse(file);
+                // 2. Parse using the buffer
+                const parsed = await fileParser.parse(arrayBuffer, file.name);
 
-                // Store in IndexedDB
-                const blob = await file.arrayBuffer();
+                // 3. Store in IndexedDB using the same buffer
                 await db.addFile({
                     name: file.name,
                     type: parsed.format,
-                    blob: new Blob([blob]),
+                    blob: new Blob([arrayBuffer]),
                     title: parsed.title,
                     author: parsed.author,
                     wordCount: parsed.wordCount,
@@ -125,7 +135,7 @@ class Library {
                 app.showToast(`Added "${parsed.title}" to library`, 'success');
             } catch (err) {
                 console.error('Error parsing file:', err);
-                app.showToast(`Failed to parse ${file.name}: ${err.message}`, 'error');
+                app.showToast(`Failed to add ${file.name}: ${err.message}`, 'error');
             }
         }
 
