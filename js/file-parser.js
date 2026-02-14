@@ -63,7 +63,9 @@ class FileParser {
      * Parse EPUB
      */
     async _parseEpub(buffer, filename) {
-        const book = ePub(buffer);
+        // Convert buffer to Blob for better compatibility with epub.js on iOS
+        const blob = new Blob([buffer], { type: 'application/epub+zip' });
+        const book = ePub(blob);
         await book.ready;
 
         const metadata = book.packaging.metadata;
