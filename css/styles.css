@@ -372,6 +372,7 @@ body {
   padding: var(--space-sm) var(--space-lg);
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
   flex-shrink: 0;
 }
 
@@ -659,6 +660,7 @@ body {
   margin-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .progress-track {
