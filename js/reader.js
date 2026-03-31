@@ -112,6 +112,12 @@ class Reader {
         const container = document.getElementById('rsvp-word');
         if (!container) return;
 
+        // Dynamically size the ORP columns based on word length
+        // so long words don't overflow the screen
+        const maxSide = Math.max(data.before.length, data.after.length);
+        const colWidth = Math.max(3, maxSide); // minimum 3ch
+        container.style.setProperty('--orp-col-width', colWidth + 'ch');
+
         // Three-column layout: before (right-aligned) | ORP (center) | after (left-aligned)
         let html = '';
         html += `<span class="orp-before">${this._escapeHtml(data.before)}</span>`;

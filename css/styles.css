@@ -475,19 +475,19 @@ body {
   width: 100%;
   height: 100%;
   font-family: var(--font-mono);
-  font-size: 3rem;
+  font-size: var(--rsvp-font-size, 3rem);
   font-weight: 500;
   letter-spacing: 0.02em;
   white-space: nowrap;
   user-select: none;
+  overflow: hidden;
 }
 
 /*
  * The word is split into three spans: before | ORP | after
- * The 'before' section is right-aligned to push against the ORP,
- * the 'after' section is left-aligned pulling away from it.
- * Both sides have equal fixed width so the ORP letter stays at
- * the exact center regardless of word length.
+ * Column widths are set dynamically via CSS custom properties
+ * from reader.js based on word length, so the ORP letter stays
+ * centered regardless of word length.
  */
 .rsvp-word {
   position: relative;
@@ -497,7 +497,7 @@ body {
 
 .rsvp-word .orp-before {
   display: inline-block;
-  width: 6ch;
+  width: var(--orp-col-width, 6ch);
   text-align: right;
   color: var(--text-primary);
 }
@@ -512,7 +512,7 @@ body {
 
 .rsvp-word .orp-after {
   display: inline-block;
-  width: 6ch;
+  width: var(--orp-col-width, 6ch);
   text-align: left;
   color: var(--text-primary);
 }
@@ -653,10 +653,10 @@ body {
 /* Progress bar */
 .reader-progress {
   flex-shrink: 0;
-  padding: var(--space-sm) var(--space-lg);
-  padding-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-sm) var(--space-lg) var(--space-md);
   padding-left: calc(var(--space-lg) + env(safe-area-inset-left, 0px));
   padding-right: calc(var(--space-lg) + env(safe-area-inset-right, 0px));
+  margin-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-subtle);
 }
@@ -1016,7 +1016,6 @@ body {
   .reader-progress {
     padding-left: calc(var(--space-md) + env(safe-area-inset-left, 0px));
     padding-right: calc(var(--space-md) + env(safe-area-inset-right, 0px));
-    padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0px));
   }
 
   /* iOS HIG: 44pt minimum touch targets */

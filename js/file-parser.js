@@ -223,10 +223,26 @@ class FileParser {
      * Tokenize text into words array, preserving punctuation attached to words
      */
     _tokenize(text) {
-        return text
+        const rawWords = text
             .replace(/\r\n/g, '\n')
             .split(/\s+/)
             .filter(w => w.length > 0);
+
+        // Split long hyphenated words into separate tokens
+        // e.g. "self-confidence" → ["self-", "confidence"]
+        const words = [];
+        for (const word of rawWords) {
+            if (word.length > 8 && word.includes('-') && !word.startsWith('-') && !word.endsWith('-')) {
+                const parts = word.split('-');
+                for (let i = 0; i < parts.length; i++) {
+                    // Keep the hyphen attached to the first part for readability
+                    words.push(i < parts.length - 1 ? parts[i] + '-' : parts[i]);
+                }
+            } else {
+                words.push(word);
+            }
+        }
+        return words;
     }
 
     /**
