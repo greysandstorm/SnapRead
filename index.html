@@ -73,13 +73,30 @@
     <main class="view active" id="view-library">
       <div class="library-header">
         <h1>Your Library</h1>
-        <button class="btn btn-primary" id="btn-add-file">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
+        <div class="library-header-actions">
+          <button class="btn btn-ghost" id="btn-edit-library" style="display:none;" title="Select files to delete">
+            Edit
+          </button>
+          <button class="btn btn-primary" id="btn-add-file">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add File
+          </button>
+        </div>
+      </div>
+
+      <!-- Bulk delete action bar (hidden by default) -->
+      <div class="bulk-action-bar" id="bulk-action-bar" style="display:none;">
+        <span id="bulk-select-count">0 selected</span>
+        <button class="btn btn-danger" id="btn-bulk-delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3,6 5,6 21,6"></polyline>
+            <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2"></path>
           </svg>
-          Add File
+          Delete Selected
         </button>
       </div>
 
@@ -87,24 +104,16 @@
 
       <!-- Empty state -->
       <div class="empty-state" id="library-empty" style="display:none;">
-        <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-          stroke-linejoin="round">
-          <rect x="12" y="8" width="56" height="64" rx="6" />
-          <line x1="24" y1="24" x2="56" y2="24" />
-          <line x1="24" y1="34" x2="48" y2="34" opacity="0.6" />
-          <line x1="24" y1="44" x2="52" y2="44" opacity="0.6" />
-          <line x1="24" y1="54" x2="44" y2="54" opacity="0.4" />
-        </svg>
-        <h2>No files yet</h2>
-        <p>Add an EPUB, PDF, TXT, or Markdown file to start speed reading.</p>
-        <button class="btn btn-primary" id="btn-add-file-empty">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
+        <div class="empty-upload-zone" id="btn-add-file-empty">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17,8 12,3 7,8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
           </svg>
-          Add Your First File
-        </button>
+          <h2>Add your first file</h2>
+          <p>EPUB, PDF, TXT, or Markdown</p>
+        </div>
       </div>
     </main>
 

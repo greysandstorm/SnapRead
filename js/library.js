@@ -7,6 +7,8 @@ class Library {
     constructor() {
         this.files = [];
         this.bookmarks = {};
+        this.isEditMode = false;
+        this.selectedIds = new Set();
         this.onFileOpen = null; // callback set by app.js
     }
 
@@ -25,14 +27,24 @@ class Library {
     render() {
         const container = document.getElementById('library-grid');
         const emptyState = document.getElementById('library-empty');
+        const editBtn = document.getElementById('btn-edit-library');
+        const bulkBar = document.getElementById('bulk-action-bar');
 
         if (this.files.length === 0) {
             container.innerHTML = '';
             emptyState.style.display = 'flex';
+            editBtn.style.display = 'none';
+            bulkBar.style.display = 'none';
+            this.isEditMode = false;
+            this.selectedIds.clear();
             return;
         }
 
         emptyState.style.display = 'none';
+        editBtn.style.display = 'inline-flex';
+
+        // Show/hide bulk action bar
+        bulkBar.style.display = this.isEditMode ? 'flex' : 'none';
 
         // Sort by last read (or added date)
         const sorted = [...this.files].sort((a, b) => {
@@ -51,6 +63,10 @@ class Library {
 
             card.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) return;
+                if (this.isEditMode) {
+                    this._toggleSelect(fileId, card);
+                    return;
+                }
                 this._openFile(fileId);
             });
 
@@ -76,8 +92,11 @@ class Library {
 
         const badgeColor = formatColors[file.type] || 'var(--accent)';
 
+        const isSelected = this.selectedIds.has(file.id);
+
         return `
-      <div class="file-card" data-file-id="${file.id}">
+      <div class="file-card${this.isEditMode ? ' selectable' : ''}${isSelected ? ' selected' : ''}" data-file-id="${file.id}">
+        <div class="select-checkbox"></div>
         <button class="delete-btn" title="Remove from library" aria-label="Remove ${file.title}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -161,6 +180,75 @@ class Library {
             app.showToast(`Removed "${file.title}"`, 'success');
             await this.refresh();
         }
+    }
+
+    // --- Edit / Select Mode ---
+
+    toggleEditMode() {
+        this.isEditMode = !this.isEditMode;
+        this.selectedIds.clear();
+
+        const editBtn = document.getElementById('btn-edit-library');
+        editBtn.textContent = this.isEditMode ? 'Done' : 'Edit';
+
+        if (this.isEditMode) {
+            editBtn.classList.remove('btn-ghost');
+            editBtn.classList.add('btn-secondary');
+        } else {
+            editBtn.classList.remove('btn-secondary');
+            editBtn.classList.add('btn-ghost');
+        }
+
+        this.render();
+    }
+
+    _toggleSelect(fileId, card) {
+        if (this.selectedIds.has(fileId)) {
+            this.selectedIds.delete(fileId);
+            card.classList.remove('selected');
+        } else {
+            this.selectedIds.add(fileId);
+            card.classList.add('selected');
+        }
+
+        // Update checkbox visuals
+        const checkbox = card.querySelector('.select-checkbox');
+        if (checkbox) {
+            // CSS handles the visual via .selected class
+        }
+
+        this._updateBulkCount();
+    }
+
+    _updateBulkCount() {
+        const countEl = document.getElementById('bulk-select-count');
+        const deleteBtn = document.getElementById('btn-bulk-delete');
+        const count = this.selectedIds.size;
+        countEl.textContent = `${count} selected`;
+        deleteBtn.disabled = count === 0;
+        deleteBtn.style.opacity = count === 0 ? '0.5' : '1';
+    }
+
+    async bulkDelete() {
+        const count = this.selectedIds.size;
+        if (count === 0) return;
+
+        if (!confirm(`Delete ${count} file${count > 1 ? 's' : ''} from your library?`)) return;
+
+        for (const fileId of this.selectedIds) {
+            await db.deleteFile(fileId);
+        }
+
+        app.showToast(`Deleted ${count} file${count > 1 ? 's' : ''}`, 'success');
+        this.selectedIds.clear();
+        this.isEditMode = false;
+
+        const editBtn = document.getElementById('btn-edit-library');
+        editBtn.textContent = 'Edit';
+        editBtn.classList.remove('btn-secondary');
+        editBtn.classList.add('btn-ghost');
+
+        await this.refresh();
     }
 
     // --- Utilities ---

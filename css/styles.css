@@ -328,25 +328,125 @@ body {
   flex: 1;
 }
 
-.empty-state svg {
-  width: 80px;
-  height: 80px;
-  color: var(--text-muted);
-  margin-bottom: var(--space-lg);
-  opacity: 0.5;
+.empty-upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-2xl) var(--space-xl);
+  border: 2px dashed var(--border-medium);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  max-width: 320px;
+  width: 100%;
 }
 
-.empty-state h2 {
-  font-size: 1.25rem;
+.empty-upload-zone:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.empty-upload-zone svg {
+  color: var(--text-muted);
+  opacity: 0.6;
+  transition: all var(--transition-normal);
+}
+
+.empty-upload-zone:hover svg {
+  color: var(--accent);
+  opacity: 1;
+}
+
+.empty-upload-zone h2 {
+  font-size: 1.1rem;
+  font-weight: 500;
   color: var(--text-secondary);
-  margin-bottom: var(--space-sm);
 }
 
-.empty-state p {
+.empty-upload-zone p {
+  font-size: 0.85rem;
   color: var(--text-muted);
-  font-size: 0.9rem;
-  max-width: 360px;
-  margin-bottom: var(--space-lg);
+}
+
+/* Library header actions */
+.library-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Bulk Action Bar */
+.bulk-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  animation: fadeIn var(--transition-fast);
+}
+
+.bulk-action-bar span {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #c04040;
+  box-shadow: 0 0 16px rgba(212, 85, 85, 0.3);
+}
+
+/* File Card — Select Mode */
+.file-card.selectable {
+  cursor: pointer;
+}
+
+.file-card .select-checkbox {
+  display: none;
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-medium);
+  background: var(--bg-primary);
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  z-index: 2;
+}
+
+.file-card.selectable .select-checkbox {
+  display: flex;
+}
+
+.file-card.selected .select-checkbox {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.file-card.selected .select-checkbox::after {
+  content: '✓';
+  color: var(--bg-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.file-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim);
 }
 
 /* ============================================

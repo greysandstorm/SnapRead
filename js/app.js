@@ -151,6 +151,16 @@ class App {
         document.getElementById('progress-track')?.addEventListener('click', (e) => {
             reader.handleProgressSeek(e);
         });
+
+        // Library edit mode toggle
+        document.getElementById('btn-edit-library')?.addEventListener('click', () => {
+            library.toggleEditMode();
+        });
+
+        // Bulk delete
+        document.getElementById('btn-bulk-delete')?.addEventListener('click', () => {
+            library.bulkDelete();
+        });
     }
 
     /**
