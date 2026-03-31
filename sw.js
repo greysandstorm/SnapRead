@@ -26,11 +26,21 @@ const CDN_URLS = [
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
 ];
 
-// Install — cache app shell
+// Install — cache app shell (resilient: individual failures don't abort install)
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll([...APP_SHELL, ...CDN_URLS]);
+            // Cache app shell (critical) — fail install if these fail
+            return cache.addAll(APP_SHELL).then(() => {
+                // Cache CDN libs individually — don't fail install if one is slow
+                return Promise.allSettled(
+                    CDN_URLS.map(url =>
+                        cache.add(url).catch(err => {
+                            console.warn('Failed to cache CDN resource:', url, err);
+                        })
+                    )
+                );
+            });
         })
     );
     self.skipWaiting();
